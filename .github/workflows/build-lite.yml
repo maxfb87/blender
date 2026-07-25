@@ -1,0 +1,55 @@
+name: Build Blender (lite)
+
+on:
+  workflow_dispatch:      # permette di avviarlo manualmente da GitHub
+  push:
+    tags:
+      - 'v*'              # si avvia automaticamente quando pushi un tag tipo v1.0
+
+jobs:
+  build-linux-lite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Checkout del fork
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Installa le dipendenze di sistema per la build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git git-lfs subversion cmake ninja-build \
+            libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev \
+            libxrandr-dev libxinerama-dev libegl-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev \
+            libdbus-1-dev linux-libc-dev
+
+      - name: make update (scarica librerie precompilate + submodule)
+        run: make update
+
+      - name: make lite (build vera e propria)
+        run: make lite
+
+      - name: Prepara l'archivio dell'eseguibile
+        run: |
+          # make lite mette l'output in ../build_linux/bin (un livello sopra la repo)
+          cd ..
+          tar -cJf blender-lite-linux-x86_64.tar.xz -C build_linux/bin .
+
+      - name: Carica come artifact (sempre, utile per testare)
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-lite-linux
+          path: ../blender-lite-linux-x86_64.tar.xz
+
+      - name: Crea la Release (solo quando pushi un tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ../blender-lite-linux-x86_64.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
