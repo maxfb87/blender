@@ -40,9 +40,23 @@ jobs:
 
       - name: Prepara l'archivio dell'eseguibile
         run: |
-          # make lite mette l'output in ../build_linux_lite/bin (un livello sopra la repo)
-          cd ..
-          tar -cJf blender-lite-linux-x86_64.tar.xz -C build_linux_lite/bin .
+          # creo l'archivio DENTRO la cartella del repo (workspace), non un livello sopra,
+          # perché upload-artifact non accetta più percorsi con ".."
+          tar -cJf "$GITHUB_WORKSPACE/blender-lite-linux-x86_64.tar.xz" -C ../build_linux_lite/bin .
+
+      - name: Carica come artifact (sempre, utile per testare)
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-lite-linux
+          path: blender-lite-linux-x86_64.tar.xz
+
+      - name: Crea la Release (solo quando pushi un tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: blender-lite-linux-x86_64.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Carica come artifact (sempre, utile per testare)
         uses: actions/upload-artifact@v4
