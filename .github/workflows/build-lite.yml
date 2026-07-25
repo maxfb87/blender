@@ -42,7 +42,7 @@ jobs:
         run: |
           # make lite mette l'output in ../build_linux_lite/bin (un livello sopra la repo)
           cd ..
-          tar -cJf blender-lite-linux-x86_64.tar.xz -C build_linux/bin .
+          tar -cJf blender-lite-linux-x86_64.tar.xz -C build_linux_lite/bin .
 
       - name: Carica come artifact (sempre, utile per testare)
         uses: actions/upload-artifact@v4
