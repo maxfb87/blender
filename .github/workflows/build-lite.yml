@@ -40,7 +40,7 @@ jobs:
 
       - name: Prepara l'archivio dell'eseguibile
         run: |
-          # make lite mette l'output in ../build_linux/bin (un livello sopra la repo)
+          # make lite mette l'output in ../build_linux_lite/bin (un livello sopra la repo)
           cd ..
           tar -cJf blender-lite-linux-x86_64.tar.xz -C build_linux/bin .
 
