@@ -1,15 +1,17 @@
 name: Build Blender (lite)
 
 on:
-  workflow_dispatch:      # permette di avviarlo manualmente da GitHub
+  workflow_dispatch:
   push:
     tags:
-      - 'v*'              # si avvia automaticamente quando pushi un tag tipo v1.0
+      - 'v*'
 
 jobs:
   build-linux-lite:
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    container:
+      image: ubuntu:22.04
 
     steps:
       - name: Checkout del fork
@@ -19,9 +21,14 @@ jobs:
           fetch-depth: 0
 
       - name: Installa le dipendenze di sistema per la build
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          apt-get update
+          apt-get install -y software-properties-common
+          add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          apt-get update
+          apt-get install -y \
             build-essential git git-lfs subversion cmake ninja-build \
             gcc-14 g++-14 \
             libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev \
@@ -40,8 +47,6 @@ jobs:
 
       - name: Prepara l'archivio dell'eseguibile
         run: |
-          # creo l'archivio DENTRO la cartella del repo (workspace), non un livello sopra,
-          # perché upload-artifact non accetta più percorsi con ".."
           tar -cJf "$GITHUB_WORKSPACE/blender-lite-linux-x86_64.tar.xz" -C ../build_linux_lite/bin .
 
       - name: Carica come artifact (sempre, utile per testare)
