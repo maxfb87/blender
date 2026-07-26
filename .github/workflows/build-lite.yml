@@ -54,6 +54,7 @@ jobs:
         env:
           CC: gcc-14
           CXX: g++-14
+          BUILD_CMAKE_ARGS: "-DWITH_GHOST_X11=ON -DWITH_X11_XINPUT=ON -DWITH_GHOST_WAYLAND=OFF"
         run: make lite
 
       - name: Prepara l'archivio dell'eseguibile
