@@ -44,6 +44,9 @@ jobs:
             libwayland-dev wayland-protocols libxkbcommon-dev \
             libdbus-1-dev linux-libc-dev
 
+      - name: Configura git safe.directory
+        run: git config --global --add safe.directory '*'
+
       - name: make update (scarica librerie precompilate + submodule)
         run: make update
 
